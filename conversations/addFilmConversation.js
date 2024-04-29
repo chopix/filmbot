@@ -3,11 +3,24 @@ import { InlineKeyboard } from 'grammy'
 import genres from '../genres.js'
 import replyWithFilm from '../functions/replyWithFilm.js'
 
+function getMaxFileSizeObject(array) {
+	if (!Array.isArray(array) || array.length === 0) {
+		return null // возвращаем null, если массив пустой или не является массивом
+	}
+
+	let maxFileSizeObject = array.reduce((max, current) => {
+		return max.file_size > current.file_size ? max : current
+	})
+
+	return maxFileSizeObject
+}
+
 export const addFilmConversation = async (conversation, ctx) => {
 	try {
 		await ctx.reply('Картинка')
 		const img = await conversation.waitFor(['message:media'])
-		const photoFileId = img.message.photo[3].file_id
+		const maxFileSizeObject = getMaxFileSizeObject(img.message.photo)
+		const photoFileId = maxFileSizeObject.file_id
 		await ctx.reply('Название')
 		const title = await conversation.wait()
 		await ctx.reply('Описание')
